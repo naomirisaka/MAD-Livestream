@@ -4,12 +4,6 @@ const { AccessToken, RoomServiceClient } = require('livekit-server-sdk');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const roomService = new RoomServiceClient(
-  process.env.LIVEKIT_URL,
-  process.env.LIVEKIT_API_KEY,
-  process.env.LIVEKIT_API_SECRET
-);
-
 app.get('/token', async (req, res) => {
   const { room, identity, canPublish } = req.query;
   if (!room || !identity) {
@@ -36,6 +30,11 @@ app.get('/active', async (req, res) => {
   const { room } = req.query;
   if (!room) return res.status(400).json({ error: 'room required' });
   try {
+    const roomService = new RoomServiceClient(
+      process.env.LIVEKIT_URL,
+      process.env.LIVEKIT_API_KEY,
+      process.env.LIVEKIT_API_SECRET
+    );
     const participants = await roomService.listParticipants(room);
     const broadcasters = participants
       .filter(p => p.tracks && p.tracks.some(t => !t.muted))
